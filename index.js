@@ -7,8 +7,15 @@ const isRegisteredForOnlineTransaction = require('./middleware/auth');
 
 dotenv.config();
 app.use(express.json());
-app.use(cors())
-connectToDb()
+const corsConfig = {
+    origin: "*",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  }
+  
+  app.use(cors(corsConfig))
+  app.options("*", cors(corsConfig))
+  connectToDb()
 
 app.get('/',(req,res)=>{
     res.send('hello')
