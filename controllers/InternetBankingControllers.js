@@ -16,7 +16,6 @@ const updateTransaction = async (user, amount, type, destinationAccount = null) 
     transaction[type].push({ amount, destinationAccount });
     await transaction.save();
 
-    // Add transaction reference to user's transactions array if it's new
     if (!user.transactions.includes(transaction._id)) {
         user.transactions.push(transaction._id);
         await user.save();
@@ -37,11 +36,16 @@ const getBalance = async (req, res) => {
 
 const transferAmount = async (req, res) => {
     const { transferedAmount, securityPin, accountToTransfer } = req.body;
+
     try {
         const user = await getUserWithSecurityCheck(req.user, securityPin);
 
         if (transferedAmount > user.balance) {
             throw { status: 400, message: "Insufficient balance." };
+        }
+
+        if (user.bankAccountNumber === accountToTransfer) {
+            throw { status: 400, message: "Cannot transfer money to your own account." };
         }
 
         const targetUser = await UserAcc.findOne({ bankAccountNumber: accountToTransfer });
@@ -63,6 +67,7 @@ const transferAmount = async (req, res) => {
         res.status(error.status || 500).json({ message: error.message || "Internal server error." });
     }
 };
+
 
 const depositAmount = async (req, res) => {
     const { bankAccountNumber, amount, securityPin } = req.body;

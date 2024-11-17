@@ -9,7 +9,6 @@ const generateAccountNumber = () => {
 
 const generateSecurityPin=()=>{
     const pin = crypto.randomInt(100000,999999)
-    // const hashPin=await bcrypt.hash(pin,10)
 
     return pin
 }
